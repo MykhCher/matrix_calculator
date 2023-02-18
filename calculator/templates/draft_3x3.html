@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Matrix Calculator</title>
+</head>
+
+<style>
+    body {
+        font-family: calibri;
+        margin: 10px;
+        padding: 10px;
+    }
+</style>
+
+<body>
+    
+
+    <form action="{% url 'matrix_3x3' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" name="i1" size="3"><input type="text" name="i2" size="3"><input type="text" name="i3" size="3"> <br/> 
+        <input type="text" name="i4" size="3"><input type="text" name="i5" size="3"><input type="text" name="i6" size="3"> <br/>
+        <input type="text" name="i7" size="3"><input type="text" name="i8" size="3"><input type="text" name="i9" size="3"> <br/>
+        <br/>
+        &emsp; Minor calculation options: <br/>
+        <label for="minor_l">Minor's line (i):&nbsp; &emsp;</label>
+        <input type="text" name="minor_l" id="minor_l" size="4" value="0"> <br/>
+        <label for="minor_c">Minor's column (j):</label>
+        <input type="text" name="minor_c" id="minor_c" size="4" value="0"> <br/>
+        &emsp; <input type="submit" value="Calculate">
+    </form>
+    
+    <form action="{% url 'matrix_calculation' %}" method="GET">
+        &emsp; <input type="submit" value = "Solve 2x2 Matrix">
+    </form>
+
+
+    <section id="answers">
+
+        {% if is_det %}
+        <br/>
+            Solution: <br/>
+            Given matrix:<br/> 
+            &emsp;&emsp;&emsp;&emsp;&emsp;&ensp; {{m1}}&ensp; {{m2}}&ensp; {{m3}}<br/>
+            &emsp; &emsp; &emsp; &nbsp; A = {{m4}}&ensp; {{m5}}&ensp; {{m6}}<br/>
+            &emsp;&emsp;&emsp;&emsp;&emsp;&ensp; {{m7}}&ensp; {{m8}}&ensp; {{m9}} <br/>
+            
+            Determinant of matrix is {{det}} <br/>
+        {% endif %}
+
+        {% if is_minor %}
+            Given minor: <br/>
+            M({{minor_l}}, {{minor_c}}) = &ensp;{{minor1}} &ensp; {{minor2}} <br/>
+            &emsp;&emsp;&emsp;&emsp;&ensp;{{minor3}} &ensp; {{minor4}}
+        {% endif %}
+
+    </section>
+    <section id="warning">
+        <br />
+        {% if warning %}<i>{{warning}}</i>{% endif %}
+    </section>
+
+</body>
+
+</html>
