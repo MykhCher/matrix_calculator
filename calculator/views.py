@@ -5,6 +5,8 @@ import re
 
 def custom_isdigit(value):
     """
+    Accepts: string with float or a statement with math operands \n
+    Returns: float or ValueError \n
     Custom method to check if input value is a digit- or numberlike.
     Supports next methods and operations: \n
     '+' : plus \n
@@ -63,10 +65,8 @@ def custom_isdigit(value):
                 for idx_ops, operator in enumerate(operator_separator):
                     if idx_sv == idx_ops:
                         new_str += elem_sv + operator
-
-                        
+                   
             new_str += sv[-1]
-                    
             value = custom_isdigit(new_str)
       
         elif "+" in value:
@@ -108,8 +108,8 @@ def matrix_minor(arr, i, j):
     Returns a minor of given arr -> `np.array` removing i-line and j-column from the origin
     """
     mask = np.ones_like(arr, dtype=bool)
-    mask[i, :] = False
-    mask[:, j] = False
+    mask[i-1, :] = False
+    mask[:, j-1] = False
 
     minor = arr[mask].reshape(arr.shape[0] - 1, arr.shape[1] - 1)
 
@@ -137,6 +137,8 @@ class Matrix2x2(View):
             "det" : determinant,
             "m1": i1, "m2" : i2,
             "m3" : i3, "m4" : i4,
+            "j1" : request.POST.get("i1"), "j2" : request.POST.get("i2"),
+            "j3" : request.POST.get("i3"), "j4" : request.POST.get("i4"),
         }
         return render(self.request, "draft_matrix.html", context=result)
     
@@ -163,7 +165,7 @@ class Matrix3x3(View):
         determinant = round(np.linalg.det(array), 3)
         is_det = True
         is_minor = False
-        minor = False
+        minor = np.zeros((2, 2))
         try:
             minor_l = int(self.request.POST.get('minor_l'))
             minor_c = int(self.request.POST.get('minor_c'))
@@ -177,9 +179,16 @@ class Matrix3x3(View):
                 "m1" : i1, "m2" : i2, "m3" : i3, 
                 "m4" : i4, "m5" : i5, "m6" : i6, 
                 "m7" : i7, "m8" : i8, "m9" : i9,
+                "j1" : request.POST.get("i1"), "j2" : request.POST.get("i2"), "j3" : request.POST.get("i3"),
+                "j4" : request.POST.get("i4"), "j5" : request.POST.get("i5"), "j6" : request.POST.get("i6"), 
+                "j7" : request.POST.get("i7"), "j8" : request.POST.get("i8"), "j9" : request.POST.get("i9"), 
                 }
         if minor_c != 0 and minor_l != 0:
-            minor = matrix_minor(array, minor_l - 1, minor_c - 1)
+            try:
+                minor = matrix_minor(array, minor_l, minor_c)
+            except IndexError:
+                message = "Warning: Type a number within a range of 0-3 when trying to specify minor line or column"
+                return render(self.request, "draft_3x3.html", {"warning" : message})
             is_minor = True
             result = {
                 "is_det" : is_det,
@@ -191,8 +200,13 @@ class Matrix3x3(View):
                 "is_minor" : is_minor,
                 "minor_c" : minor_c,
                 "minor_l" : minor_l,
+                "str_minor_c" : request.POST.get('minor_c'),
+                "str_minor_l" : request.POST.get('minor_l'),
                 "m1" : i1, "m2" : i2, "m3" : i3, 
                 "m4" : i4, "m5" : i5, "m6" : i6, 
-                "m7" : i7, "m8" : i8, "m9" : i9, 
+                "m7" : i7, "m8" : i8, "m9" : i9,
+                "j1" : request.POST.get("i1"), "j2" : request.POST.get("i2"), "j3" : request.POST.get("i3"),
+                "j4" : request.POST.get("i4"), "j5" : request.POST.get("i5"), "j6" : request.POST.get("i6"), 
+                "j7" : request.POST.get("i7"), "j8" : request.POST.get("i8"), "j9" : request.POST.get("i9"), 
                 }
         return render(self.request, "draft_3x3.html", context=result)

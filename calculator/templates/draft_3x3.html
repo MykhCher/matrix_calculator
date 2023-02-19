@@ -18,15 +18,24 @@
 
     <form action="{% url 'matrix_3x3' %}" method="POST">
         {% csrf_token %}
-        <input type="text" name="i1" size="3"><input type="text" name="i2" size="3"><input type="text" name="i3" size="3"> <br/> 
-        <input type="text" name="i4" size="3"><input type="text" name="i5" size="3"><input type="text" name="i6" size="3"> <br/>
-        <input type="text" name="i7" size="3"><input type="text" name="i8" size="3"><input type="text" name="i9" size="3"> <br/>
+        <input type="text" name="i1" size="3" {% if j1 %}value={{j1}}{% endif %}>
+        <input type="text" name="i2" size="3" {% if j2 %}value={{j2}}{% endif %}>
+        <input type="text" name="i3" size="3" {% if j3 %}value={{j3}}{% endif %}>
+         <br/> 
+        <input type="text" name="i4" size="3" {% if j4 %}value={{j4}}{% endif %}>
+        <input type="text" name="i5" size="3" {% if j5 %}value={{j5}}{% endif %}>
+        <input type="text" name="i6" size="3" {% if j6 %}value={{j6}}{% endif %}>
+         <br/>
+        <input type="text" name="i7" size="3" {% if j7 %}value={{j7}}{% endif %}>
+        <input type="text" name="i8" size="3" {% if j8 %}value={{j8}}{% endif %}>
+        <input type="text" name="i9" size="3" {% if j9 %}value={{j9}}{% endif %}>
+         <br/>
         <br/>
         &emsp; Minor calculation options: <br/>
         <label for="minor_l">Minor's line (i):&nbsp; &emsp;</label>
-        <input type="text" name="minor_l" id="minor_l" size="4" value="0"> <br/>
+        <input type="text" name="minor_l" id="minor_l" size="4" value={% if str_minor_l %}{{str_minor_l}}{% else %}"0"{% endif %}> <br/>
         <label for="minor_c">Minor's column (j):</label>
-        <input type="text" name="minor_c" id="minor_c" size="4" value="0"> <br/>
+        <input type="text" name="minor_c" id="minor_c" size="4" value={% if str_minor_c %}{{str_minor_c}}{% else %}"0"{% endif %}> <br/>
         &emsp; <input type="submit" value="Calculate">
     </form>
     

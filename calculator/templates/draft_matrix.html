@@ -22,8 +22,10 @@
 
     <form action="{% url 'matrix_calculation' %}" method="POST">
         {% csrf_token %}
-        <input type="text" name="i1" size="3"><input type="text" name="i2" size="3"> <br/> 
-        <input type="text" name="i3" size="3"><input type="text" name="i4" size="3"> <br/>
+        <input type="text" name="i1" size="3" {% if j1 %}value={{j1}}{% endif %}>
+        <input type="text" name="i2" size="3" {% if j2 %}value={{j2}}{% endif %}> <br/> 
+        <input type="text" name="i3" size="3" {% if j3 %}value={{j3}}{% endif %}>
+        <input type="text" name="i4" size="3" {% if j4 %}value={{j4}}{% endif %}> <br/>
         <input type="submit" value="Calculate">
     </form>
 
