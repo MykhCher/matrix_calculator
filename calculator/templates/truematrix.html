@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Matrix Calculator</title>
+</head>
+
+<style>
+    body {
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        color: whitesmoke;
+        margin: 10px;
+        padding: 10px;
+        background-color: #333;
+    }
+    a {
+        color: rgb(195, 195, 205)
+    }
+    
+    a:visited {
+        color: rgb(190, 180, 205)
+    }
+    
+    a:active {
+        color: rgb(115, 115, 225)
+    }
+</style>
+
+<body>
+    <header>
+        <h1>Solve the matrices</h1>
+    </header>
+    <main>
+        <section id="matrix">
+            <form action="{% url 'truematrix' %}" method="POST">
+                <table>
+                    {% csrf_token %}
+                    {% for h in m_height %}
+                        <tr>
+                            {% for w in m_width %}
+                                <td><input type="text" name="matrix{{h}}{{w}}" size="3"></td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+
+                <hr>
+                
+                <p>Minor calculation options:</p>
+                <label for="minor_l">Minor's line (i):&nbsp; &emsp;</label>
+                <input type="number" name="minor_l" id="minor_l" size="4" value={% if str_minor_l %}{{str_minor_l}}{% else %}"0"{% endif %} max="{{m_trueheight}}" min="0"> <br/>
+                <label for="minor_c">Minor's column (j):</label>
+                <input type="number" name="minor_c" id="minor_c" size="4" value={% if str_minor_c %}{{str_minor_c}}{% else %}"0"{% endif %} max="{{m_truewidth}}" min="0"> <br/>
+                <button type="submit">Calculate</button>
+                <input type="hidden" name="width" value="{{m_truewidth}}">
+                <input type="hidden" name="height" value="{{m_trueheight}}">
+            </form>
+            <br>
+            <form action="{% url 'truematrix' %}" method="POST">
+                {% csrf_token %}
+                {{size_form}}
+                <br>
+                <button type="submit">Resize the matrix</button>
+            </form>
+        </section>
+
+        {% if is_solved %}
+        <hr>
+
+        <section id="answers">
+            <h3>Got matrix:</h3>
+            <table>
+                {% for i in array %}
+                    <tr>
+                        <td>
+                            {% for j in i %} {{j}} &ensp; {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <p> Determinant of matrix:
+                {% if is_det %}
+                    {{determinant}}
+                {% else %}
+                    Can't calculate the determinant
+                {% endif %}
+            </p>
+            {% if is_minor %}
+                <p>Matrix minor ({{str_minor_l}}, {{str_minor_c}}):</p>
+                <table>
+                    {% for i in minor %}
+                    <tr>
+                        <td>
+                            {% for j in i %} {{j}} &ensp; {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table> 
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <section id="warning">
+            <p>
+                {% if warning %}<i>{{warning}}</i>{% endif %}
+            </p>
+        </section>
+        
+    </main>
+
+    <hr>
+    
+    <footer>
+        <p> &copy; Mykhailo Chernov </p>
+        <p>
+            <a href="https://github.com/MykhCher/matrix_calculator" target="_blank">GitHUb Repo</a>
+        </p>
+    </footer>
+</body>
+
+</html>

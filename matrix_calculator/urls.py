@@ -15,10 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from calculator.views import Matrix2x2, Matrix3x3
+from calculator.views import TrueMatrix
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', Matrix2x2.as_view(), name="matrix_calculation"),
-    path('3x3', Matrix3x3.as_view(), name="matrix_3x3")
+    path('', TrueMatrix.as_view(), name="truematrix"),
 ]

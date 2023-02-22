@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views import View
+from .forms import MatrixChoiceForm
 import numpy as np
 import re
 
@@ -117,96 +118,79 @@ def matrix_minor(arr, i, j):
 
     return minor
 
-class Matrix2x2(View):
-    
+class TrueMatrix(View):
     def get(self, request):
-        return render(self.request, "draft_matrix.html")
-    
-    def post(self, request):
-        try:
-            i1 = custom_isdigit(request.POST.get('i1'))
-            i2 = custom_isdigit(request.POST.get('i2'))
-            i3 = custom_isdigit(request.POST.get('i3'))
-            i4 = custom_isdigit(request.POST.get('i4'))
-        except ValueError:
-            message = "Warning: Type numbers (integer or float) into the input!"
-            return render(self.request, "draft_matrix.html", {"warning" : message})
-        array = np.array([[i1, i2], [i3, i4]])
-        determinant = round(np.linalg.det(array), 3)
-        result = {
-            "det" : determinant,
-            "m1": i1, "m2" : i2,
-            "m3" : i3, "m4" : i4,
-            "j1" : request.POST.get("i1"), "j2" : request.POST.get("i2"),
-            "j3" : request.POST.get("i3"), "j4" : request.POST.get("i4"),
+        m_width = 3
+        m_width_range = range(3)
+        m_height = 3
+        m_height_range = range(3)
+        context = {
+            "m_width" : m_width_range,
+            "m_truewidth" : m_width,
+            "m_height" : m_height_range,
+            "m_trueheight" : m_height,
+            "size_form" : MatrixChoiceForm()
         }
-        return render(self.request, "draft_matrix.html", context=result)
-    
-class Matrix3x3(View):
-
-    def get(self, request):
-        return render(self.request, "draft_3x3.html")
+        return render(self.request, 'truematrix.html', context)
     
     def post(self, request):
-        try:
-            i1 = custom_isdigit(request.POST.get('i1'))
-            i2 = custom_isdigit(request.POST.get('i2'))
-            i3 = custom_isdigit(request.POST.get('i3'))
-            i4 = custom_isdigit(request.POST.get('i4'))
-            i5 = custom_isdigit(request.POST.get('i5'))
-            i6 = custom_isdigit(request.POST.get('i6'))
-            i7 = custom_isdigit(request.POST.get('i7'))
-            i8 = custom_isdigit(request.POST.get('i8'))
-            i9 = custom_isdigit(request.POST.get('i9'))
-        except ValueError:
-            message = "Warning: Type numbers (integer or float) into the input!"
-            return render(self.request, "draft_3x3.html", {"warning" : message})
-        array = np.array([[i1, i2, i3], [i4, i5, i6], [i7, i8, i9]])
-        determinant = round(np.linalg.det(array), 3)
-        is_det = True
-        is_minor = False
-        minor = np.zeros((2, 2))
-        try:
-            minor_l = int(self.request.POST.get('minor_l'))
-            minor_c = int(self.request.POST.get('minor_c'))
-        except ValueError:
-            message = "Warning: Type non-zero integer into «Minor's line» or «Minor's column» input!"
-            return render(self.request, "draft_3x3.html", {"warning" : message})
-        result = {
-                "is_det" : is_det,
-                "det" : determinant,
-                "is_minor" : is_minor,
-                "m1" : i1, "m2" : i2, "m3" : i3, 
-                "m4" : i4, "m5" : i5, "m6" : i6, 
-                "m7" : i7, "m8" : i8, "m9" : i9,
-                "j1" : request.POST.get("i1"), "j2" : request.POST.get("i2"), "j3" : request.POST.get("i3"),
-                "j4" : request.POST.get("i4"), "j5" : request.POST.get("i5"), "j6" : request.POST.get("i6"), 
-                "j7" : request.POST.get("i7"), "j8" : request.POST.get("i8"), "j9" : request.POST.get("i9"), 
-                }
-        if minor_c != 0 and minor_l != 0:
+        m_width = int(self.request.POST.get("width"))
+        m_width_range = range(m_width)
+        m_height = int(self.request.POST.get("height"))
+        m_height_range = range(m_height)
+        context = {
+            "m_width" : m_width_range,
+            "m_truewidth" : m_width,
+            "m_height" : m_height_range,
+            "m_trueheight" : m_height,
+            "size_form" : MatrixChoiceForm(initial={"width" : m_width, "height" : m_height})
+        }
+        if 'matrix00' in self.request.POST:
+            context["is_solved"] = True
+            matrix_elements = []
+            for elem in self.request.POST:
+                if 'matrix' in elem:
+                    matrix_elements.append(custom_isdigit(self.request.POST.get(elem)))
+            array = np.array(matrix_elements)
+            array = array.reshape(m_height, m_width)
+            if m_width == m_height:
+                is_det = True
+                determinant = np.linalg.det(array)
+                context["is_det"] = is_det
+                context["determinant"] = round(determinant, 4)
+            context["array"] = array
             try:
-                minor = matrix_minor(array, minor_l, minor_c)
-            except IndexError:
+                minor_l = int(self.request.POST.get('minor_l'))
+                minor_c = int(self.request.POST.get('minor_c'))
+            except ValueError:
                 message = "Warning: Type a number within a range of 0-3 when trying to specify minor line or column"
-                return render(self.request, "draft_3x3.html", {"warning" : message})
-            is_minor = True
-            result = {
-                "is_det" : is_det,
-                "det" : determinant, 
-                "minor1" : minor[0][0],
-                "minor2" : minor[0][1],
-                "minor3" : minor[1][0],
-                "minor4" : minor[1][1], 
-                "is_minor" : is_minor,
-                "minor_c" : minor_c,
-                "minor_l" : minor_l,
-                "str_minor_c" : request.POST.get('minor_c'),
-                "str_minor_l" : request.POST.get('minor_l'),
-                "m1" : i1, "m2" : i2, "m3" : i3, 
-                "m4" : i4, "m5" : i5, "m6" : i6, 
-                "m7" : i7, "m8" : i8, "m9" : i9,
-                "j1" : request.POST.get("i1"), "j2" : request.POST.get("i2"), "j3" : request.POST.get("i3"),
-                "j4" : request.POST.get("i4"), "j5" : request.POST.get("i5"), "j6" : request.POST.get("i6"), 
-                "j7" : request.POST.get("i7"), "j8" : request.POST.get("i8"), "j9" : request.POST.get("i9"), 
+                context = {
+                    "m_width" : m_width_range,
+                    "m_truewidth" : m_width,
+                    "m_height" : m_height_range,
+                    "m_trueheight" : m_height,
+                    "size_form" : MatrixChoiceForm(),
+                    "warning" : message,
                 }
-        return render(self.request, "draft_3x3.html", context=result)
+                return render(self.request, "truematrix.html", context)
+            if minor_c != 0 and minor_l != 0:
+                try:
+                    minor = matrix_minor(array, minor_l, minor_c)
+                except IndexError:
+                    message = "Warning: Type a number within a range of 0-3 when trying to specify minor line or column"
+                    context = {
+                        "m_width" : m_width_range,
+                        "m_truewidth" : m_width,
+                        "m_height" : m_height_range,
+                        "m_trueheight" : m_height,
+                        "size_form" : MatrixChoiceForm(),
+                        "warning" : message,
+                    }
+                    return render(self.request, "truematrix.html", context)
+                is_minor = True
+                context["str_minor_c"] = str(minor_c)
+                context["str_minor_l"] = str(minor_l)
+                context["is_minor"] = is_minor
+                context["minor"] = minor
+            
+        return render(self.request, 'truematrix.html', context)
